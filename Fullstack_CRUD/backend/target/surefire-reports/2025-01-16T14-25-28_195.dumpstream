@@ -1,0 +1,3 @@
+# Created at 2025-01-16T14:25:28.607
+Picked up _JAVA_OPTIONS: -Xms1024m -Xmx4096m -Djavax.net.ssl.trustStore=C:\SeleniumTool\jssecacerts -Djavax.net.ssl.trustStorePassword=changeit
+
