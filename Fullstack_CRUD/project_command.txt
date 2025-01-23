@@ -1,0 +1,140 @@
+Deployed Docker, K8s, Prometheus, Grafana, ArgoCD Project Command 
+
+docker build -t fullstack_crud-backend ./backend 
+
+docker build -t fullstack_crud-frontend ./frontend 
+
+docker-compose up --build -d (create container if image not build) 
+
+docker login 
+
+docker tag fullstack_crud-backend:latest dnptestaccount/fullstack_crud-backend:1.0 
+
+docker push dnptestaccount/fullstack_crud-backend:1.0 
+
+Run All Yaml File 
+
+kubectl apply -f namespaces.yaml 
+
+kubectl apply -f mysql-pv.yaml 
+
+kubectl apply -f mysql-pvc.yaml 
+
+kubectl apply -f mysql-deployment.yaml 
+
+kubectl apply -f frontend-deployment.yaml 
+
+kubectl apply -f frontend-policy.yaml 
+
+kubectl apply -f backend-config.yaml 
+
+kubectl apply -f backend-secrets.yaml 
+
+kubectl apply -f backend-deployment.yaml 
+
+kubectl apply -f backend-policy.yaml 
+
+kubectl autoscale deployment backend-deployment --cpu-percent=50 --min=3 --max=10 -n dev 
+
+kubectl autoscale deployment frontend-deployment --cpu-percent=50 --min=2 --max=5 -n dev 
+
+kubectl get hpa -n dev 
+
+ 
+
+ 
+
+kubectl create namespace monitoring 
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts 
+
+helm install prometheus-stack prometheus-community/kube-prometheus-stack --namespace monitoring --set prometheus.service.nodePort=30000 --set grafana.service.nodePort=31000 --set grafana.service.type=NodePort --set prometheus.service.type=NodePort 
+
+start kubectl port-forward svc/prometheus-stack-kube-prom-prometheus 9090:9090 -n monitoring --address=0.0.0.0 & 
+
+start kubectl port-forward svc/prometheus-stack-grafana 3001:80 -n monitoring --address=0.0.0.0 & 
+
+kubectl get secret grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode 
+
+ 
+
+ 
+
+start kubectl port-forward svc/frontend-service 3000:3000 --address=0.0.0.0 -n dev & 
+
+start kubectl port-forward svc/backend-service 7001:7001 --address=0.0.0.0 -n dev & 
+
+ 
+
+trivy image fullstack_crud-backend:1.0 
+
+ 
+
+kubectl create serviceaccount dev-user -n dev 
+
+kubectl create serviceaccount monitoring-user -n monitoring 
+
+kubectl auth can-i get pods --as=system:serviceaccount:dev:dev-user -n dev 
+
+ 
+
+helm install backend-app D:\DockerData\Fullstack_CRUD\k8s\backend-chart -n dev 
+
+helm install frontend-app D:\DockerData\Fullstack_CRUD\k8s\frontend-chart -n dev 
+
+helm install mysql-app D:\DockerData\Fullstack_CRUD\k8s\mysql-chart -n dev 
+
+helm list -n dev 
+
+ 
+
+kubectl create namespace argocd 
+
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml 
+
+start kubectl port-forward svc/argocd-server -n argocd 8080:443 --address=0.0.0.0 & 
+
+kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 –decode 
+
+echo "TEhjZlFYeGdISlBCcGpsMQ==" | base64 –decode (Linux Command) 
+
+ 
+
+kubectl scale deployment backend-app --replicas=5 -n dev 
+
+kubectl scale deployment backend-app --replicas=1 -n dev 
+
+kubectl get deployment backend-app -n dev -o yaml | findstr image 
+
+kubectl set image deployment/backend-app backend-container=<new-backend-image> -n dev 
+
+kubectl set image deployment/backend-app backend-container=myrepo/backend:v2 -n dev 
+
+kubectl rollout status deployment/backend-app -n dev 
+
+kubectl rollout undo deployment/backend-app -n dev 
+
+
+
+
+React-app URL: http://localhost:3000/ 
+
+Springboot URL: http://localhost:7001/api/v1/employees 
+
+Grafana Dashboard Password & Username 
+
+Username: admin 
+
+Password: prom-operator 
+
+Extra Useful command 
+
+kubectl get nodes -o wide 
+
+ 
+
+tasklist | findstr kubectl 
+
+taskkill /PID 1234 /F  
+
+taskkill /IM kubectl.exe /F (kill all process) 
