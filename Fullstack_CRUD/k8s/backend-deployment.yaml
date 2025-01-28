@@ -4,7 +4,7 @@ metadata:
   name: backend-deployment
   namespace: dev
 spec:
-  replicas: 3
+  replicas: 5
   selector:
     matchLabels:
       app: backend
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: dnptestaccount/fullstack_crud-backend:1.0
+          image: dnptestaccount/fullstack_crud-backend:2.0
           imagePullPolicy: Always
           ports:
             - containerPort: 7001
@@ -45,6 +45,29 @@ spec:
                 secretKeyRef:
                   name: backend-secrets
                   key: SPRING_DATASOURCE_PASSWORD
+          livenessProbe:
+            httpGet:
+              path: /api/v1/employees
+              port: 7001
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            failureThreshold: 5
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /api/v1/employees
+              port: 7001
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            failureThreshold: 5
+            successThreshold: 1
+          resources:
+            requests:
+              cpu: "1"  # 1 CPU core
+              memory: "512Mi"  # 512MB RAM
+            limits:
+              cpu: "2"  # 2 CPU core max
+              memory: "1Gi"  # 1GB RAM max
 
 ---
 apiVersion: v1
@@ -59,4 +82,5 @@ spec:
     - protocol: TCP
       port: 7001
       targetPort: 7001
+      nodePort: 30001
   type: NodePort

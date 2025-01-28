@@ -1,0 +1,29 @@
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+name: multi-node-cluster
+
+networking:
+  apiServerAddress: "127.0.0.1" # To ensure API server is accessible on localhost
+  apiServerPort: 6443          # Kubernetes API server port
+  podSubnet: "10.244.0.0/16"   # Pod network range for CNI plugins like Calico/Flannel
+  serviceSubnet: "10.96.0.0/12" # Service network range
+
+nodes:
+  # Control-plane node
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 80      # HTTP traffic for Ingress
+        hostPort: 8080
+        protocol: TCP
+      - containerPort: 443     # HTTPS traffic for Ingress
+        hostPort: 8443
+        protocol: TCP
+
+  # Worker node 1
+  - role: worker
+
+  # Worker node 2
+  - role: worker
+
+  # Worker node 3
+  - role: worker
